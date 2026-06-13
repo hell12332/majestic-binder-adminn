@@ -4,11 +4,27 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - run: node --version
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - run: npm init -y
-      - run: npm install electron
-      - run: echo "console.log('test')" > main.js
+      - run: npm install electron electron-builder --save-dev
+      - run: |
+          echo '{' > package.json
+          echo '  "name": "app",' >> package.json
+          echo '  "version": "1.0.0",' >> package.json
+          echo '  "main": "main.js",' >> package.json
+          echo '  "build": { "win": { "target": "portable" } }' >> package.json
+          echo '}' >> package.json
+      - run: |
+          echo "const { app, BrowserWindow } = require('electron');" > main.js
+          echo "app.whenReady().then(() => {" >> main.js
+          echo "  const win = new BrowserWindow({ width: 900, height: 700 });" >> main.js
+          echo "  win.loadURL('https://google.com');" >> main.js
+          echo "});" >> main.js
+      - run: npx electron-builder --win --portable
       - uses: actions/upload-artifact@v4
         with:
-          name: output
-          path: main.js
+          name: Majestic-Binder
+          path: dist/*.exe
