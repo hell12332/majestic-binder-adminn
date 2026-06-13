@@ -1,27 +1,17 @@
 name: Build
-
-on:
-  workflow_dispatch:
-
+on: workflow_dispatch
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
       - run: npm init -y
-      
-      - run: npm install electron electron-builder
-      
-      - run: echo "const { app, BrowserWindow } = require('electron'); app.whenReady().then(() => { const win = new BrowserWindow({ width: 900, height: 700 }); win.loadURL('https://example.com'); });" > main.js
-      
-      - run: npx electron-builder --win --portable --publish never
-      
+      - run: npm install electron
+      - run: echo "console.log('test')" > main.js
       - uses: actions/upload-artifact@v4
         with:
-          name: Majestic-Binder
-          path: dist/*.exe
+          name: output
+          path: main.js
