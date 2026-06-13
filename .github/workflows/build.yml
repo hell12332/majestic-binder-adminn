@@ -1,8 +1,6 @@
-name: Build Majestic Binder Admin
+name: Build
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -11,98 +9,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
       
-      - name: Install electron-builder
-        run: npm install -g electron electron-builder
-        
-      - name: Create Electron app
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path myapp
-          cd myapp
-          
-          $packageJson = @'
-      {
-        "name": "majestic-binder",
-        "version": "1.0.0",
-        "main": "main.js",
-        "scripts": {
-          "dist": "electron-builder"
-        },
-        "build": {
-          "appId": "com.majestic.binder",
-          "productName": "Majestic Binder Admin",
-          "directories": {
-            "output": "dist"
-          },
-          "win": {
-            "target": "portable"
-          }
-        }
-      }
-      '@
-          $packageJson | Out-File -Encoding UTF8 package.json
-          
-          $mainJs = @'
-      const { app, BrowserWindow } = require('electron');
+      - run: npm init -y
       
-      function createWindow() {
-        const win = new BrowserWindow({
-          width: 900,
-          height: 700,
-          webPreferences: {
-            nodeIntegration: true
-          }
-        });
-        win.loadFile('index.html');
-      }
+      - run: npm install electron electron-builder
       
-      app.whenReady().then(createWindow);
-      '@
-          $mainJs | Out-File -Encoding UTF8 main.js
-          
-          $indexHtml = @'
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            background: #0a0c12;
-            color: #ffd966;
-            font-family: system-ui;
-            text-align: center;
-            padding: 50px;
-          }
-          h1 { font-size: 32px; }
-          .status { color: #4ade80; margin: 20px; font-size: 24px; }
-          .stats { margin: 30px; padding: 20px; background: #1a1d2a; border-radius: 12px; }
-          .trigger { font-size: 48px; color: #ffd966; }
-        </style>
-      </head>
-      <body>
-        <h1>Majestic Binder Admin</h1>
-        <div class="status">🟢 Сервер работает</div>
-        <div class="stats">
-          <div>📊 Всего триггеров: <span class="trigger">1313</span></div>
-          <div>📅 Репортов за день: 0</div>
-          <div>📆 Репортов за неделю: 9</div>
-          <div>🔧 Версия: 3.4.10</div>
-        </div>
-        <div>Разработал .w1sley | дизайн от dipsy</div>
-      </body>
-      </html>
-      '@
-          $indexHtml | Out-File -Encoding UTF8 index.html
-          
-          npm install electron electron-builder --save-dev
-          npm run dist
-          
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - run: echo "const { app, BrowserWindow } = require('electron'); app.whenReady().then(() => { const win = new BrowserWindow({ width: 900, height: 700 }); win.loadURL('https://example.com'); });" > main.js
+      
+      - run: npx electron-builder --win --portable --publish never
+      
+      - uses: actions/upload-artifact@v4
         with:
-          name: Majestic-Binder-Admin
-          path: myapp/dist/*.exe
+          name: Majestic-Binder
+          path: dist/*.exe
