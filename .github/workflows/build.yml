@@ -12,87 +12,60 @@ jobs:
       
       - name: Create package.json
         run: |
-          cat > package.json << 'EOF'
-      {
-        "name": "majestic-binder",
-        "version": "1.0.0",
-        "main": "main.js",
-        "build": {
-          "win": {
-            "target": "nsis"
-          }
-        }
-      }
-      EOF
+          echo { > package.json
+          echo   \"name\": \"majestic-binder\", >> package.json
+          echo   \"version\": \"1.0.0\", >> package.json
+          echo   \"main\": \"main.js\", >> package.json
+          echo   \"build\": { >> package.json
+          echo     \"win\": { >> package.json
+          echo       \"target\": \"nsis\" >> package.json
+          echo     } >> package.json
+          echo   } >> package.json
+          echo } >> package.json
       
       - name: Create main.js
         run: |
-          cat > main.js << 'EOF'
-      const { app, BrowserWindow } = require('electron');
-      
-      function createWindow() {
-        const win = new BrowserWindow({
-          width: 1000,
-          height: 700,
-          webPreferences: {
-            nodeIntegration: true
-          }
-        });
-        win.loadFile('index.html');
-      }
-      
-      app.whenReady().then(createWindow);
-      EOF
+          echo const { app, BrowserWindow } = require('electron'); > main.js
+          echo function createWindow() { >> main.js
+          echo   const win = new BrowserWindow({ >> main.js
+          echo     width: 1000, >> main.js
+          echo     height: 700, >> main.js
+          echo     webPreferences: { nodeIntegration: true } >> main.js
+          echo   }); >> main.js
+          echo   win.loadFile('index.html'); >> main.js
+          echo } >> main.js
+          echo app.whenReady().then(createWindow); >> main.js
       
       - name: Create index.html
         run: |
-          cat > index.html << 'EOF'
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body {
-            background: #0a0c12;
-            color: #ffd966;
-            text-align: center;
-            padding: 50px;
-            font-family: system-ui;
-          }
-          h1 { font-size: 32px; }
-          .status { color: #4ade80; font-size: 24px; margin: 20px; }
-          .stats {
-            background: #1a1d2a;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px auto;
-            max-width: 400px;
-          }
-          .trigger { font-size: 48px; color: #ffd966; font-weight: bold; }
-        </style>
-      </head>
-      <body>
-        <h1>Majestic Binder Admin</h1>
-        <div class="status">🟢 Активен</div>
-        <div class="stats">
-          <div>📊 Всего триггеров: <span class="trigger">1313</span></div>
-          <div>📅 Репортов за день: 0</div>
-          <div>📆 Репортов за неделю: 9</div>
-          <div>🔧 Версия: 3.4.10</div>
-        </div>
-        <div>Разработал .w1sley | дизайн от dipsy</div>
-      </body>
-      </html>
-      EOF
+          echo ^<html^> > index.html
+          echo ^<head^>^<style^> >> index.html
+          echo body { background: #0a0c12; color: #ffd966; text-align: center; padding: 50px; font-family: system-ui; } >> index.html
+          echo h1 { font-size: 32px; } >> index.html
+          echo .status { color: #4ade80; font-size: 24px; margin: 20px; } >> index.html
+          echo .stats { background: #1a1d2a; padding: 20px; border-radius: 12px; margin: 20px auto; max-width: 400px; } >> index.html
+          echo .trigger { font-size: 48px; color: #ffd966; font-weight: bold; } >> index.html
+          echo ^</style^>^</head^> >> index.html
+          echo ^<body^> >> index.html
+          echo ^<h1^>Majestic Binder Admin^</h1^> >> index.html
+          echo ^<div class="status"^>🟢 Active^</div^> >> index.html
+          echo ^<div class="stats"^> >> index.html
+          echo ^<div^>📊 Triggers: ^<span class="trigger"^>1313^</span^>^</div^> >> index.html
+          echo ^<div^>📅 Reports today: 0^</div^> >> index.html
+          echo ^<div^>📆 Reports week: 9^</div^> >> index.html
+          echo ^<div^>🔧 Version: 3.4.10^</div^> >> index.html
+          echo ^</div^> >> index.html
+          echo ^<div^>Made by .w1sley ^| design by dipsy^</div^> >> index.html
+          echo ^</body^>^</html^> >> index.html
       
-      - name: Install dependencies
+      - name: Install
         run: |
           npm init -y
           npm install electron electron-builder --save-dev
-          
+      
       - name: Build
         run: npx electron-builder --win
-        
+      
       - uses: actions/upload-artifact@v4
         with:
           name: Majestic-Binder-Admin
