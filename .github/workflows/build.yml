@@ -12,7 +12,7 @@ jobs:
       - run: npm install electron electron-builder --save-dev
       - run: |
           echo '{' > package.json
-          echo '  "name": "app",' >> package.json
+          echo '  "name": "majestic",' >> package.json
           echo '  "version": "1.0.0",' >> package.json
           echo '  "main": "main.js",' >> package.json
           echo '  "build": { "win": { "target": "portable" } }' >> package.json
@@ -20,11 +20,28 @@ jobs:
       - run: |
           echo "const { app, BrowserWindow } = require('electron');" > main.js
           echo "app.whenReady().then(() => {" >> main.js
-          echo "  const win = new BrowserWindow({ width: 900, height: 700 });" >> main.js
-          echo "  win.loadURL('https://google.com');" >> main.js
+          echo "  const win = new BrowserWindow({ width: 1000, height: 700 });" >> main.js
+          echo "  win.loadFile('index.html');" >> main.js
           echo "});" >> main.js
+      - run: |
+          echo "<!DOCTYPE html>" > index.html
+          echo "<html><head><style>" >> index.html
+          echo "body{background:#0a0c12;color:#ffd966;text-align:center;padding:50px;font-family:system-ui}" >> index.html
+          echo "h1{font-size:32px}" >> index.html
+          echo ".status{color:#4ade80;font-size:24px;margin:20px}" >> index.html
+          echo ".stats{background:#1a1d2a;padding:20px;border-radius:12px;margin:20px}" >> index.html
+          echo "</style></head><body>" >> index.html
+          echo "<h1>Majestic Binder Admin</h1>" >> index.html
+          echo "<div class='status'>🟢 Сервер работает</div>" >> index.html
+          echo "<div class='stats'>" >> index.html
+          echo "<p>📊 Всего триггеров: 1313</p>" >> index.html
+          echo "<p>📅 Репортов за день: 0</p>" >> index.html
+          echo "<p>🔧 Версия: 3.4.10</p>" >> index.html
+          echo "</div>" >> index.html
+          echo "<p>Разработал .w1sley | дизайн от dipsy</p>" >> index.html
+          echo "</body></html>" >> index.html
       - run: npx electron-builder --win --portable
       - uses: actions/upload-artifact@v4
         with:
-          name: Majestic-Binder
+          name: Majestic-Binder-Admin
           path: dist/*.exe
