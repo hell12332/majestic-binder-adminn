@@ -21,11 +21,52 @@ jobs:
           mkdir app
           cd app
           npm init -y
-          npm install electron
-          echo 'const { app, BrowserWindow } = require("electron"); app.whenReady().then(() => { const win = new BrowserWindow({ width: 800, height: 600 }); win.loadURL("data:text/html,<h1>Majestic Binder Admin</h1><p>Working!</p>"); });' > main.js
-          npx electron-builder --win --portable --publish never
+          npm install electron electron-builder --save-dev
+          
+          echo 'const { app, BrowserWindow } = require("electron");' > main.js
+          echo 'const path = require("path");' >> main.js
+          echo '' >> main.js
+          echo 'function createWindow() {' >> main.js
+          echo '  const win = new BrowserWindow({' >> main.js
+          echo '    width: 900,' >> main.js
+          echo '    height: 700,' >> main.js
+          echo '    webPreferences: {' >> main.js
+          echo '      nodeIntegration: true' >> main.js
+          echo '    }' >> main.js
+          echo '  });' >> main.js
+          echo '  win.loadURL(`data:text/html,` + encodeURIComponent(`' >> main.js
+          echo '    <!DOCTYPE html>' >> main.js
+          echo '    <html>' >> main.js
+          echo '    <head><style>body{background:#0a0c12;color:#ffd966;font-family:system-ui;text-align:center;padding:50px}</style></head>' >> main.js
+          echo '    <body>' >> main.js
+          echo '      <h1>Majestic Binder Admin</h1>' >> main.js
+          echo '      <h2>✅ Ready to work!</h2>' >> main.js
+          echo '      <p>Версия 3.4.10 | Триггеров: 1313</p>' >> main.js
+          echo '    </body>' >> main.js
+          echo '    </html>' >> main.js
+          echo '  `));' >> main.js
+          echo '}' >> main.js
+          echo '' >> main.js
+          echo 'app.whenReady().then(createWindow);' >> main.js
+          
+          echo '{' > package.json.electron
+          echo '  "name": "majestic-binder",' >> package.json.electron
+          echo '  "version": "1.0.0",' >> package.json.electron
+          echo '  "main": "main.js",' >> package.json.electron
+          echo '  "build": {' >> package.json.electron
+          echo '    "appId": "com.majestic.binder",' >> package.json.electron
+          echo '    "productName": "Majestic Binder Admin",' >> package.json.electron
+          echo '    "directories": {"output": "dist"},' >> package.json.electron
+          echo '    "win": {"target": "nsis","icon": "icon.ico"}' >> package.json.electron
+          echo '  }' >> package.json.electron
+          echo '}' >> package.json.electron
+          
+          move package.json.electron package.json
+          
+          npx electron-builder --win --x64
       
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: Majestic-Binder-Admin
           path: app/dist/*.exe
