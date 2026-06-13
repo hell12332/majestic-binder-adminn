@@ -14,59 +14,91 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       
-      - name: Create simple Electron app
+      - name: Install electron-builder
+        run: npm install -g electron electron-builder
+        
+      - name: Create Electron app
         run: |
-          mkdir app
-          cd app
-          npm init -y
+          New-Item -ItemType Directory -Force -Path myapp
+          cd myapp
+          
+          @"
+{
+  "name": "majestic-binder",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.majestic.binder",
+    "productName": "Majestic Binder Admin",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable"
+    }
+  }
+}
+"@ | Out-File -Encoding UTF8 package.json
+
+          @"
+const { app, BrowserWindow } = require('electron');
+
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 900,
+    height: 700,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+  win.loadFile('index.html');
+}
+
+app.whenReady().then(createWindow);
+"@ | Out-File -Encoding UTF8 main.js
+
+          @"
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background: #0a0c12;
+      color: #ffd966;
+      font-family: system-ui;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 { font-size: 32px; }
+    .status { color: #4ade80; margin: 20px; font-size: 24px; }
+    .stats { margin: 30px; padding: 20px; background: #1a1d2a; border-radius: 12px; }
+    .trigger { font-size: 48px; color: #ffd966; }
+  </style>
+</head>
+<body>
+  <h1>Majestic Binder Admin</h1>
+  <div class="status">🟢 Сервер работает</div>
+  <div class="stats">
+    <div>📊 Всего триггеров: <span class="trigger">1313</span></div>
+    <div>📅 Репортов за день: 0</div>
+    <div>📆 Репортов за неделю: 9</div>
+    <div>🔧 Версия: 3.4.10</div>
+  </div>
+  <div>Разработал .w1sley | дизайн от dipsy</div>
+</body>
+</html>
+"@ | Out-File -Encoding UTF8 index.html
+
           npm install electron electron-builder --save-dev
+          npm run dist
           
-          echo 'const { app, BrowserWindow } = require("electron");' > main.js
-          echo 'const path = require("path");' >> main.js
-          echo '' >> main.js
-          echo 'function createWindow() {' >> main.js
-          echo '  const win = new BrowserWindow({' >> main.js
-          echo '    width: 900,' >> main.js
-          echo '    height: 700,' >> main.js
-          echo '    webPreferences: {' >> main.js
-          echo '      nodeIntegration: true' >> main.js
-          echo '    }' >> main.js
-          echo '  });' >> main.js
-          echo '  win.loadURL(`data:text/html,` + encodeURIComponent(`' >> main.js
-          echo '    <!DOCTYPE html>' >> main.js
-          echo '    <html>' >> main.js
-          echo '    <head><style>body{background:#0a0c12;color:#ffd966;font-family:system-ui;text-align:center;padding:50px}</style></head>' >> main.js
-          echo '    <body>' >> main.js
-          echo '      <h1>Majestic Binder Admin</h1>' >> main.js
-          echo '      <h2>✅ Ready to work!</h2>' >> main.js
-          echo '      <p>Версия 3.4.10 | Триггеров: 1313</p>' >> main.js
-          echo '    </body>' >> main.js
-          echo '    </html>' >> main.js
-          echo '  `));' >> main.js
-          echo '}' >> main.js
-          echo '' >> main.js
-          echo 'app.whenReady().then(createWindow);' >> main.js
-          
-          echo '{' > package.json.electron
-          echo '  "name": "majestic-binder",' >> package.json.electron
-          echo '  "version": "1.0.0",' >> package.json.electron
-          echo '  "main": "main.js",' >> package.json.electron
-          echo '  "build": {' >> package.json.electron
-          echo '    "appId": "com.majestic.binder",' >> package.json.electron
-          echo '    "productName": "Majestic Binder Admin",' >> package.json.electron
-          echo '    "directories": {"output": "dist"},' >> package.json.electron
-          echo '    "win": {"target": "nsis","icon": "icon.ico"}' >> package.json.electron
-          echo '  }' >> package.json.electron
-          echo '}' >> package.json.electron
-          
-          move package.json.electron package.json
-          
-          npx electron-builder --win --x64
-      
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Majestic-Binder-Admin
-          path: app/dist/*.exe
+          path: myapp/dist/*.exe
