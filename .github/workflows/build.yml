@@ -4,10 +4,7 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - run: node --version
       - run: npm init -y
       - run: npm install electron
       - run: echo "console.log('test')" > main.js
